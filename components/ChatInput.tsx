@@ -25,13 +25,15 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Digite sua mensagem..."
-          className="flex-1 w-full px-4 py-2 bg-gray-700/60 text-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow disabled:opacity-50 placeholder-gray-400"
+          className="flex-1 w-full px-4 py-3 bg-[#2A2A2A] text-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition-shadow disabled:opacity-50 placeholder-gray-500"
           disabled={isLoading}
+          aria-label="Digite sua mensagem"
         />
         <button
           type="submit"
           disabled={isLoading || !input.trim()}
-          className="p-3 rounded-full text-white bg-blue-600 hover:bg-blue-500 transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100"
+          className="p-3 rounded-full text-white bg-green-600 hover:bg-green-500 transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#1E1E1E] focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100"
+          aria-label="Enviar mensagem"
         >
           <SendIcon className="w-5 h-5" />
         </button>

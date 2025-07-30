@@ -10,23 +10,44 @@ const App: React.FC = () => {
     {
       id: 'initial-1',
       sender: Sender.Bot,
-      text: 'Olá! Sou seu assistente virtual para orçamentos de faxina. Como posso ajudar você hoje?',
-    },
-    {
-      id: 'initial-2',
-      sender: Sender.Bot,
-      text: 'Para criar um orçamento personalizado, preciso de algumas informações. Pode me contar sobre o tipo de faxina que você precisa?',
+      text: `Olá! Sou seu assistente virtual para cotação de limpeza. 👋
+
+Para gerar o orçamento, por favor, me informe os seguintes dados: 
+
+🏠 Tipo de Limpeza (Standard, Deep, Move in/out, Pós-construção): 
+📏 Área (em sqft):
+🛏️ Quartos:
+🚽 Banheiros:
+
+Além disso, deseja incluir algum destes itens extras?
+
+🔥 Forno
+🧊 Geladeira
+👚 Lavanderia
+🚗 Garagem
+📦 Organização
+🧼 Carpet Shampooing
+🪟 Janelas
+
+É só me enviar tudo e eu calculo o valor para você! ✨`,
+      timestamp: '09:52',
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSendMessage = async (text: string) => {
     if (!text.trim()) return;
+    
+    const timestamp = new Date().toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
 
     const userMessage: Message = {
       id: `user-${Date.now()}`,
       sender: Sender.User,
       text,
+      timestamp,
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -38,6 +59,10 @@ const App: React.FC = () => {
         id: `bot-${Date.now()}`,
         sender: Sender.Bot,
         text: botText,
+        timestamp: new Date().toLocaleTimeString('pt-BR', {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
       };
       setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
@@ -45,6 +70,10 @@ const App: React.FC = () => {
         id: `error-${Date.now()}`,
         sender: Sender.Bot,
         text: 'Desculpe, ocorreu um erro. Tente novamente em alguns instantes.',
+        timestamp: new Date().toLocaleTimeString('pt-BR', {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
       };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
@@ -53,8 +82,8 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="bg-gray-900 min-h-screen p-2 flex items-center justify-center font-sans">
-      <div className="w-full max-w-6xl h-[95vh] max-h-[950px] bg-gray-800/30 backdrop-blur-2xl border border-white/10 rounded-lg shadow-2xl flex flex-col overflow-hidden">
+    <div className="bg-black min-h-screen p-2 flex items-center justify-center font-sans">
+      <div className="w-full max-w-4xl h-[95vh] max-h-[950px] bg-[#1E1E1E] border border-white/10 rounded-lg shadow-2xl flex flex-col overflow-hidden">
         <ChatHeader />
         <ChatMessages messages={messages} isLoading={isLoading} />
         <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />

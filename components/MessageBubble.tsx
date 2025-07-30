@@ -1,6 +1,6 @@
 import React from 'react';
 import { type Message, Sender } from '../types';
-import { BotAvatarIcon } from './icons';
+import { BotAvatarIcon, UserAvatarIcon } from './icons';
 
 interface MessageBubbleProps {
   message: Message;
@@ -9,22 +9,24 @@ interface MessageBubbleProps {
 export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
   const isUser = message.sender === Sender.User;
 
-  if (isUser) {
-    return (
-      <div className="flex justify-end">
-        <div className="max-w-xs md:max-w-md lg:max-w-lg bg-blue-600 text-white p-3 rounded-l-xl rounded-t-xl shadow-md">
-          <p className="text-sm whitespace-pre-line">{message.text}</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex justify-start items-end space-x-3">
-      <BotAvatarIcon className="w-8 h-8 flex-shrink-0 mb-1" />
-      <div className="max-w-xs md:max-w-md lg:max-w-lg bg-gray-700/60 text-gray-200 p-3 rounded-r-xl rounded-t-xl shadow-md">
-        <p className="text-sm whitespace-pre-line">{message.text}</p>
+    <div className={`flex items-end gap-2 ${isUser ? 'justify-end' : 'justify-start'}`}>
+      {!isUser && <BotAvatarIcon className="w-9 h-9" />}
+      
+      <div 
+        className={`relative max-w-xs md:max-w-md lg:max-w-xl px-3.5 py-2.5 shadow-md ${
+          isUser
+            ? 'bg-green-600 text-white rounded-xl rounded-br-sm'
+            : 'bg-[#2A2A2A] text-gray-200 rounded-xl rounded-bl-sm'
+        }`}
+      >
+        <p className="text-sm whitespace-pre-wrap pb-3">{message.text}</p>
+        <span className={`absolute bottom-1.5 right-3 text-xs ${isUser ? 'text-green-200/70' : 'text-gray-500'}`}>
+          {message.timestamp}
+        </span>
       </div>
+
+      {isUser && <UserAvatarIcon className="w-8 h-8" />}
     </div>
   );
 };
