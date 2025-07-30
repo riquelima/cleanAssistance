@@ -1,37 +1,55 @@
 const WEBHOOK_URL = 'https://primary-production-76569.up.railway.app/webhook/e2b21e34-2929-42c3-8c7f-a10a98e3b11e';
 
 /**
- * Cleans the bot response by extracting content from a potential iframe srcdoc
- * and decoding HTML entities. This handles a specific output format from some
- * webhook providers that wrap responses in iframes for sandboxing.
+ * Cleans the bot response, which may be HTML or markdown, to a formatted
+ * plain text string that preserves line breaks for display. It handles
+ * responses wrapped in iframes, converts basic HTML formatting into
+ * newlines, and removes markdown asterisks.
  * @param text The raw text response from the bot.
- * @returns The cleaned, user-visible text.
+ * @returns The cleaned, user-visible text with newlines.
  */
 function cleanBotResponse(text: string): string {
   const trimmedText = text.trim();
+  let htmlToParse = text;
 
-  // Check if the string looks like an iframe tag. A simple check is enough.
+  // If the response is wrapped in an iframe, extract and decode the srcdoc content.
   if (trimmedText.startsWith('<iframe') && trimmedText.endsWith('</iframe>')) {
-    try {
-      // Use a regex to extract the srcdoc attribute value.
-      // This captures everything between the quotes of srcdoc.
-      const match = trimmedText.match(/srcdoc="([\s\S]*?)"/);
-      if (match && match[1]) {
-        const srcdocContent = match[1];
-        // Use a DOM element to safely decode HTML entities like &quot;
-        const decoder = document.createElement('textarea');
-        decoder.innerHTML = srcdocContent;
-        return decoder.value;
-      }
-    } catch (e) {
-      console.error("Error parsing iframe srcdoc:", e);
-      // Fallback to returning the original text if parsing fails
-      return text;
+    const match = trimmedText.match(/srcdoc="([\s\S]*?)"/);
+    if (match && match[1]) {
+      // The content of srcdoc is an HTML-encoded string.
+      // We use a textarea to decode it into a raw HTML string.
+      const decoder = document.createElement('textarea');
+      decoder.innerHTML = match[1];
+      htmlToParse = decoder.value;
     }
   }
-  
-  // If it's not an iframe, return the original text
-  return text;
+
+  try {
+    // Use a temporary DOM element to safely parse the HTML.
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlToParse;
+
+    // Replace <br> tags with newline characters.
+    tempDiv.querySelectorAll('br').forEach(br => br.replaceWith('\n'));
+    // Ensure paragraphs are separated by a blank line.
+    tempDiv.querySelectorAll('p').forEach(p => p.append('\n\n'));
+    // Ensure list items are on new lines.
+    tempDiv.querySelectorAll('li').forEach(li => li.append('\n'));
+
+    let cleanedText = tempDiv.textContent || "";
+    
+    // Normalize multiple newlines to a maximum of two and trim whitespace.
+    cleanedText = cleanedText.replace(/(\n\s*){3,}/g, '\n\n').trim();
+
+    // Remove markdown-style asterisks for bolding and lists.
+    return cleanedText.replace(/\*/g, '');
+  } catch (e) {
+    console.error("Error parsing bot response HTML:", e);
+    // As a fallback, just strip all tags to prevent errors and remove asterisks.
+    const decoder = document.createElement('textarea');
+    decoder.innerHTML = text;
+    return decoder.value.replace(/\*/g, '');
+  }
 }
 
 
