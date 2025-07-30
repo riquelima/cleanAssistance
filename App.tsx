@@ -82,8 +82,8 @@ Além disso, deseja incluir algum destes itens extras?
   };
 
   return (
-    <div className="bg-black min-h-screen p-2 flex items-center justify-center font-sans">
-      <div className="w-full max-w-4xl h-[95vh] max-h-[950px] bg-[#1E1E1E] border border-white/10 rounded-lg shadow-2xl flex flex-col overflow-hidden">
+    <div className="bg-black h-screen font-sans">
+      <div className="w-full h-full bg-[#1E1E1E] flex flex-col overflow-hidden">
         <ChatHeader />
         <ChatMessages messages={messages} isLoading={isLoading} />
         <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />

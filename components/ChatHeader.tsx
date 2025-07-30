@@ -1,5 +1,4 @@
 import React from 'react';
-import { ClockIcon } from './icons';
 
 // A new component for the Lottie animation icon
 const LottieIcon = () => (
@@ -14,7 +13,7 @@ const LottieIcon = () => (
 
 export const ChatHeader: React.FC = () => {
   return (
-    <div className="p-4 text-white border-b border-white/10 flex-shrink-0 flex items-center justify-between">
+    <div className="p-4 text-white border-b border-white/10 flex-shrink-0 flex items-center">
       <div className="flex items-center space-x-3">
         <LottieIcon />
         <div>
@@ -25,10 +24,6 @@ export const ChatHeader: React.FC = () => {
           </div>
         </div>
       </div>
-      <button className="flex items-center space-x-2 px-3 py-1.5 bg-zinc-700/50 hover:bg-zinc-700/80 rounded-md text-sm text-gray-300 transition-colors">
-        <ClockIcon className="w-4 h-4" />
-        <span>Resposta rápida</span>
-      </button>
     </div>
   );
 };
