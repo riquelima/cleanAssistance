@@ -1,4 +1,5 @@
-declare namespace JSX {
+declare global {
+  namespace JSX {
     interface IntrinsicElements {
       'dotlottie-wc': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement> & {
         src: string;
@@ -7,4 +8,7 @@ declare namespace JSX {
         loop?: boolean;
       }, HTMLElement>;
     }
+  }
 }
+
+export {};

@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { ChatHeader } from './components/ChatHeader';
 import { ChatMessages } from './components/ChatMessages';
 import { ChatInput } from './components/ChatInput';
+import { LoginScreen } from './components/LoginScreen';
 import { type Message, Sender } from './types';
 import { getBotResponse } from './services/webhookService';
 
 const App: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'initial-1',
@@ -34,6 +36,14 @@ Além disso, deseja incluir algum destes itens extras?
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleLogin = (user: string, pass: string): boolean => {
+    if (user === 'admin' && pass === 'North2025') {
+      setIsAuthenticated(true);
+      return true;
+    }
+    return false;
+  };
 
   const handleSendMessage = async (text: string) => {
     if (!text.trim()) return;
@@ -80,6 +90,10 @@ Além disso, deseja incluir algum destes itens extras?
       setIsLoading(false);
     }
   };
+
+  if (!isAuthenticated) {
+    return <LoginScreen onLogin={handleLogin} />;
+  }
 
   return (
     <div className="bg-black h-screen font-sans">
