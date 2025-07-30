@@ -1,7 +1,4 @@
-import 'react';
-
-declare global {
-  namespace JSX {
+declare namespace JSX {
     interface IntrinsicElements {
       'dotlottie-wc': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement> & {
         src: string;
@@ -10,5 +7,4 @@ declare global {
         loop?: boolean;
       }, HTMLElement>;
     }
-  }
 }

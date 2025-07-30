@@ -20,7 +20,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
             : 'bg-[#2A2A2A] text-gray-200 rounded-xl rounded-bl-sm'
         }`}
       >
-        <p className="text-sm whitespace-pre-wrap pb-3">{message.text}</p>
+        <p className="text-base whitespace-pre-wrap pb-3">{message.text}</p>
         <span className={`absolute bottom-1.5 right-3 text-xs ${isUser ? 'text-green-200/70' : 'text-gray-500'}`}>
           {message.timestamp}
         </span>
