@@ -9,3 +9,8 @@ export interface Message {
   sender: Sender;
   timestamp: string;
 }
+
+export interface User {
+  username: string;
+  password: string;
+}

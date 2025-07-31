@@ -1,9 +1,7 @@
-import React from 'react';
-
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      'dotlottie-wc': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement> & {
+      'dotlottie-wc': import('react').DetailedHTMLProps<import('react').HTMLAttributes<HTMLElement> & {
         src: string;
         speed?: string;
         autoplay?: boolean;
@@ -12,3 +10,5 @@ declare global {
     }
   }
 }
+
+export {};
