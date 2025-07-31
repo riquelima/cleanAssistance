@@ -1,3 +1,6 @@
+
+import { type Database } from './services/database.types';
+
 export enum Sender {
   User = 'user',
   Bot = 'bot',
@@ -10,7 +13,5 @@ export interface Message {
   timestamp: string;
 }
 
-export interface User {
-  username: string;
-  password: string;
-}
+export type User = Database['public']['Tables']['users']['Row'];
+export type NewUser = Database['public']['Tables']['users']['Insert'];

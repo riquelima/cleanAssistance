@@ -1,12 +1,13 @@
+
 import React, { useState } from 'react';
-import { type User } from '../types';
+import { type User, type NewUser } from '../types';
 import { TrashIcon, UserAvatarIcon } from './icons';
 
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   users: User[];
-  addUser: (user: User) => Promise<boolean>;
+  addUser: (user: NewUser) => Promise<boolean>;
   deleteUser: (username: string) => void;
 }
 

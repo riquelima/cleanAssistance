@@ -1,3 +1,4 @@
+
 export type Json =
   | string
   | number
@@ -6,7 +7,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
-export interface Database {
+export type Database = {
   public: {
     Tables: {
       users: {
@@ -43,4 +44,4 @@ export interface Database {
       [_ in never]: never;
     };
   };
-}
+};

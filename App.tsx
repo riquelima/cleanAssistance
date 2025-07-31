@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { ChatHeader } from './components/ChatHeader';
 import { ChatMessages } from './components/ChatMessages';
 import { ChatInput } from './components/ChatInput';
 import { LoginScreen } from './components/LoginScreen';
-import { type Message, Sender, type User } from './types';
+import { type Message, Sender, type User, type NewUser } from './types';
 import { getBotResponse } from './services/webhookService';
 import { SettingsModal } from './components/SettingsModal';
-import { SupabaseSetup } from './components/SupabaseSetup';
-import { type Database } from './services/database.types';
+import { supabase } from './services/supabaseClient';
 
 
 const initialMessage: Message = {
@@ -38,7 +36,6 @@ Além disso, deseja incluir algum destes itens extras?
     };
 
 const App: React.FC = () => {
-  const [supabase, setSupabase] = useState<SupabaseClient<Database> | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -46,40 +43,18 @@ const App: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // On initial load, check for saved Supabase credentials and create a client.
+  // Fetch all users on initial load.
   useEffect(() => {
-    const supabaseUrl = localStorage.getItem('supabaseUrl');
-    const supabaseAnonKey = localStorage.getItem('supabaseAnonKey');
-
-    if (supabaseUrl && supabaseAnonKey) {
-      try {
-        const client = createClient<Database>(supabaseUrl, supabaseAnonKey);
-        setSupabase(client);
-      } catch (error) {
-        console.error("Failed to create Supabase client:", error);
-        // Clear broken credentials
-        localStorage.removeItem('supabaseUrl');
-        localStorage.removeItem('supabaseAnonKey');
+    const fetchUsers = async () => {
+      const { data, error } = await supabase.from('users').select('*');
+      if (error) {
+        console.error('Error fetching users:', error);
+      } else {
+        setUsers(data || []);
       }
-    }
+    };
+    fetchUsers();
   }, []);
-
-  // Fetch all users once the Supabase client is available.
-  useEffect(() => {
-    if (supabase) {
-      const fetchUsers = async () => {
-        const { data, error } = await supabase.from('users').select('*');
-        if (error) {
-          console.error('Error fetching users:', error);
-          // This might happen with incorrect credentials.
-          // Consider clearing credentials here if error is auth-related.
-        } else {
-          setUsers(data || []);
-        }
-      };
-      fetchUsers();
-    }
-  }, [supabase]);
 
   // Load chat history when the current user changes.
   useEffect(() => {
@@ -101,16 +76,7 @@ const App: React.FC = () => {
     }
   }, [messages, currentUser, isAuthenticated]);
 
-  const handleSupabaseSave = (url: string, key: string) => {
-    localStorage.setItem('supabaseUrl', url);
-    localStorage.setItem('supabaseAnonKey', key);
-    const client = createClient<Database>(url, key);
-    setSupabase(client);
-  };
-
   const handleLogin = async (username: string, pass: string): Promise<boolean> => {
-    if (!supabase) return false;
-
     const { data, error } = await supabase
       .from('users')
       .select('*')
@@ -133,9 +99,7 @@ const App: React.FC = () => {
     setCurrentUser(null);
   };
 
-  const addUser = async (newUser: User): Promise<boolean> => {
-    if (!supabase) return false;
-
+  const addUser = async (newUser: NewUser): Promise<boolean> => {
     const { data: existingUser, error: findError } = await supabase
         .from('users')
         .select('username')
@@ -170,7 +134,7 @@ const App: React.FC = () => {
 
 
   const deleteUser = async (username: string) => {
-    if (!supabase || username === 'admin') return;
+    if (username === 'admin') return;
     
     const { error } = await supabase
       .from('users')
@@ -232,10 +196,6 @@ const App: React.FC = () => {
     }
   };
   
-  if (!supabase) {
-    return <SupabaseSetup onSave={handleSupabaseSave} />;
-  }
-
   if (!isAuthenticated) {
     return <LoginScreen onLogin={handleLogin} />;
   }
