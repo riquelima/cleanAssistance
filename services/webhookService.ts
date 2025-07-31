@@ -1,4 +1,4 @@
-const WEBHOOK_URL = 'https://primary-production-76569.up.railway.app/webhook/e2b21e34-2929-42c3-8c7f-a10a98e3b11e';
+const WEBHOOK_URL = 'https://primary-production-56d83.up.railway.app/webhook/e2b21e34-2929-42c3-8c7f-a10a98e3b11e';
 
 /**
  * Cleans the bot response, which may be HTML or markdown, to a formatted
