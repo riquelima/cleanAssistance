@@ -1,6 +1,6 @@
 import React from 'react';
 import { type User } from '../types';
-import { SettingsIcon, LogoutIcon } from './icons';
+import { SettingsIcon, LogoutIcon, LeadsIcon } from './icons';
 
 interface ChatHeaderProps {
   currentUser: User | null;
@@ -9,6 +9,10 @@ interface ChatHeaderProps {
 }
 
 export const ChatHeader: React.FC<ChatHeaderProps> = ({ currentUser, onToggleSettings, onLogout }) => {
+  const handleLeadsClick = () => {
+    window.open('https://docs.google.com/spreadsheets/d/14qkYLP4Q_BKz7reN28nnT_Qp9fdlmnj-j8td6r1lfJg/edit?usp=sharing', '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <div className="p-4 text-white border-b border-white/10 flex-shrink-0 flex items-center justify-between">
       <div className="flex items-center space-x-3">
@@ -25,7 +29,15 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ currentUser, onToggleSet
           </div>
         </div>
       </div>
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-4">
+        <button 
+          onClick={handleLeadsClick}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-gray-200 bg-white/5 hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-white"
+          aria-label="Abrir planilha de leads"
+        >
+          <LeadsIcon className="w-5 h-5" />
+          <span>Leads</span>
+        </button>
         {currentUser?.username === 'admin' && (
             <button 
               onClick={onToggleSettings}
