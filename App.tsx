@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ChatHeader } from './components/ChatHeader';
 import { ChatMessages } from './components/ChatMessages';
@@ -42,19 +43,75 @@ const App: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isReady, setIsReady] = useState(false);
 
-  // Fetch all users on initial load.
+  useEffect(() => {
+    const initializeApp = async () => {
+        // This robust script ensures the admin user exists with the correct password in the new table.
+        const flag = 'admin_user_users_north_v1'; // Use a new flag to re-run for the new table name
+        if (!localStorage.getItem(flag)) {
+            console.log("Garantindo a configuração do usuário 'admin' na tabela 'users_north'...");
+
+            // Step 1: Find any user with a case-insensitive 'admin' username.
+            const { data: existingAdmin, error: findError } = await supabase
+                .from('users_north')
+                .select('id, username')
+                .ilike('username', 'admin')
+                .limit(1)
+                .maybeSingle(); 
+
+            if (findError) {
+                console.error("Erro ao verificar o usuário admin:", findError.message);
+            } else if (existingAdmin) {
+                // Step 2a: User exists. Update password and normalize username to lowercase.
+                console.log(`Usuário admin encontrado ('${existingAdmin.username}'). Atualizando para credenciais padrão.`);
+                const { error: updateError } = await supabase
+                    .from('users_north')
+                    .update({ password: 'North_448', username: 'admin' }) // Enforce lowercase username
+                    .eq('id', existingAdmin.id);
+
+                if (updateError) {
+                    console.error('Falha ao ATUALIZAR o usuário admin:', updateError.message);
+                } else {
+                    console.log('Usuário admin atualizado com sucesso.');
+                    localStorage.setItem(flag, 'true');
+                }
+            } else {
+                // Step 2b: User does not exist. Create it.
+                console.log("Usuário 'admin' não encontrado. Criando usuário admin padrão.");
+                const { error: insertError } = await supabase
+                    .from('users_north')
+                    .insert({ username: 'admin', password: 'North_448' });
+
+                if (insertError) {
+                    console.error('Falha ao CRIAR o usuário admin:', insertError.message);
+                } else {
+                    console.log('Usuário admin criado com sucesso.');
+                    localStorage.setItem(flag, 'true');
+                }
+            }
+        }
+        // The app is ready to display the login screen.
+        setIsReady(true);
+    };
+
+    initializeApp();
+  }, []);
+
+  // Fetch all users once authenticated.
   useEffect(() => {
     const fetchUsers = async () => {
-      const { data, error } = await supabase.from('users').select('*');
+      const { data, error } = await supabase.from('users_north').select('*');
       if (error) {
         console.error('Error fetching users:', error);
       } else {
         setUsers(data || []);
       }
     };
-    fetchUsers();
-  }, []);
+    if (isAuthenticated) {
+      fetchUsers();
+    }
+  }, [isAuthenticated]);
 
   // Load chat history when the current user changes.
   useEffect(() => {
@@ -78,14 +135,17 @@ const App: React.FC = () => {
 
   const handleLogin = async (username: string, pass: string): Promise<boolean> => {
     const { data, error } = await supabase
-      .from('users')
+      .from('users_north')
       .select('*')
       .eq('username', username.toLowerCase())
       .eq('password', pass)
-      .single();
+      .maybeSingle();
     
     if (error || !data) {
-      console.error('Login failed:', error?.message);
+      if (error) {
+        // Log only actual database errors, not "no user found" scenarios.
+        console.error('Login failed:', error.message);
+      }
       return false;
     }
 
@@ -101,7 +161,7 @@ const App: React.FC = () => {
 
   const addUser = async (newUser: NewUser): Promise<boolean> => {
     const { data: existingUser, error: findError } = await supabase
-        .from('users')
+        .from('users_north')
         .select('username')
         .eq('username', newUser.username.toLowerCase())
         .single();
@@ -116,7 +176,7 @@ const App: React.FC = () => {
     }
     
     const { data, error } = await supabase
-        .from('users')
+        .from('users_north')
         .insert([{ ...newUser, username: newUser.username.toLowerCase() }])
         .select()
         .single();
@@ -137,7 +197,7 @@ const App: React.FC = () => {
     if (username === 'admin') return;
     
     const { error } = await supabase
-      .from('users')
+      .from('users_north')
       .delete()
       .eq('username', username);
       
@@ -196,6 +256,23 @@ const App: React.FC = () => {
     }
   };
   
+  if (!isReady) {
+    return (
+      <div className="bg-[#1E1E1E] h-screen flex flex-col items-center justify-center font-sans text-white p-4">
+        <div className="w-full max-w-sm text-center">
+          <div className="flex justify-center mb-6">
+              <img 
+                src="https://raw.githubusercontent.com/riquelima/cleanAssistance/refs/heads/main/NorthLogo.png" 
+                alt="Logo"
+                className="w-60 h-auto"
+              />
+          </div>
+          <p className="text-lg text-gray-300 animate-pulse">Inicializando...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!isAuthenticated) {
     return <LoginScreen onLogin={handleLogin} />;
   }

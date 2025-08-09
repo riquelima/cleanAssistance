@@ -13,5 +13,5 @@ export interface Message {
   timestamp: string;
 }
 
-export type User = Database['public']['Tables']['users']['Row'];
-export type NewUser = Database['public']['Tables']['users']['Insert'];
+export type User = Database['public']['Tables']['users_north']['Row'];
+export type NewUser = Database['public']['Tables']['users_north']['Insert'];

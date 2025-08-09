@@ -44,6 +44,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }
     setIsLoading(false);
   };
+  
+  const managedUsers = users.filter(user => user.username !== 'admin');
 
   return (
     <div 
@@ -103,13 +105,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {/* User List */}
           <div className="space-y-3">
              <h3 className="text-lg font-medium border-b border-white/10 pb-2 mb-3">Usuários Atuais</h3>
-            {users.map((user) => (
-              <div key={user.username} className="flex items-center justify-between bg-[#1E1E1E] p-3 rounded-lg">
-                <div className="flex items-center gap-3">
-                    <UserAvatarIcon className="w-8 h-8" />
-                    <span className="font-medium">{user.username}</span>
-                </div>
-                {user.username !== 'admin' && (
+            {managedUsers.length === 0 ? (
+              <div className="text-center py-4 px-2">
+                <p className="text-gray-400 text-sm">Nenhum usuário foi adicionado ainda.</p>
+              </div>
+            ) : (
+              managedUsers.map((user) => (
+                <div key={user.username} className="flex items-center justify-between bg-[#1E1E1E] p-3 rounded-lg">
+                  <div className="flex items-center gap-3">
+                      <UserAvatarIcon className="w-8 h-8" />
+                      <span className="font-medium">{user.username}</span>
+                  </div>
                   <button 
                     onClick={() => deleteUser(user.username)}
                     className="p-1.5 rounded-full text-gray-400 hover:bg-red-500/20 hover:text-red-400 transition-colors"
@@ -117,9 +123,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   >
                     <TrashIcon className="w-5 h-5" />
                   </button>
-                )}
-              </div>
-            ))}
+                </div>
+              ))
+            )}
           </div>
         </div>
 
