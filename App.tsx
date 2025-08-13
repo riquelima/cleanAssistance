@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ChatHeader } from './components/ChatHeader';
 import { ChatMessages } from './components/ChatMessages';
@@ -8,6 +7,7 @@ import { type Message, Sender, type User, type NewUser } from './types';
 import { getBotResponse } from './services/webhookService';
 import { SettingsModal } from './components/SettingsModal';
 import { supabase } from './services/supabaseClient';
+import { ensureAdminUser } from './services/userService';
 
 
 const initialMessage: Message = {
@@ -47,51 +47,9 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const initializeApp = async () => {
-        // This robust script ensures the admin user exists with the correct password in the new table.
-        const flag = 'admin_user_users_north_v1'; // Use a new flag to re-run for the new table name
-        if (!localStorage.getItem(flag)) {
-            console.log("Garantindo a configuração do usuário 'admin' na tabela 'users_north'...");
-
-            // Step 1: Find any user with a case-insensitive 'admin' username.
-            const { data: existingAdmin, error: findError } = await supabase
-                .from('users_north')
-                .select('id, username')
-                .ilike('username', 'admin')
-                .limit(1)
-                .maybeSingle(); 
-
-            if (findError) {
-                console.error("Erro ao verificar o usuário admin:", findError.message);
-            } else if (existingAdmin) {
-                // Step 2a: User exists. Update password and normalize username to lowercase.
-                console.log(`Usuário admin encontrado ('${existingAdmin.username}'). Atualizando para credenciais padrão.`);
-                const { error: updateError } = await supabase
-                    .from('users_north')
-                    .update({ password: 'North_448', username: 'admin' }) // Enforce lowercase username
-                    .eq('id', existingAdmin.id);
-
-                if (updateError) {
-                    console.error('Falha ao ATUALIZAR o usuário admin:', updateError.message);
-                } else {
-                    console.log('Usuário admin atualizado com sucesso.');
-                    localStorage.setItem(flag, 'true');
-                }
-            } else {
-                // Step 2b: User does not exist. Create it.
-                console.log("Usuário 'admin' não encontrado. Criando usuário admin padrão.");
-                const { error: insertError } = await supabase
-                    .from('users_north')
-                    .insert({ username: 'admin', password: 'North_448' });
-
-                if (insertError) {
-                    console.error('Falha ao CRIAR o usuário admin:', insertError.message);
-                } else {
-                    console.log('Usuário admin criado com sucesso.');
-                    localStorage.setItem(flag, 'true');
-                }
-            }
-        }
-        // The app is ready to display the login screen.
+        // Garante que o usuário admin exista com as credenciais corretas.
+        await ensureAdminUser();
+        // O aplicativo está pronto para exibir a tela de login.
         setIsReady(true);
     };
 
